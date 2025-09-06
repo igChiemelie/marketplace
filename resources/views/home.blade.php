@@ -28,7 +28,29 @@
             <div class="container">
                 <h2 class="section-title">Shop by Category</h2>
                 <div class="category-grid">
-                    <div class="category-card" data-category="electronics">
+                    @foreach ($categories as $category)
+                        <div class="category-card" data-category="{{ strtolower($category->name) }}">
+                            <div class="category-icon">
+                                <!-- You can customize icons based on category -->
+                                @if($category->name == 'Electronics')
+                                    <i class="fas fa-mobile-alt"></i>
+                                @elseif($category->name == 'Fashion')
+                                    <i class="fas fa-tshirt"></i>
+                                @elseif($category->name == 'Home & Garden')
+                                    <i class="fas fa-home"></i>
+                                @elseif($category->name == 'Beauty')
+                                    <i class="fas fa-heart"></i>
+                                @elseif($category->name == 'Sports')
+                                    <i class="fas fa-futbol"></i> 
+                                
+                                @endif
+                                
+                            </div>
+                            <h3>{{ $category->name }}</h3>
+                        </div>          
+                        
+                    @endforeach
+                    {{-- <div class="category-card" data-category="electronics">
                         <div class="category-icon">
                             <i class="fas fa-mobile-alt"></i>
                         </div>
@@ -61,7 +83,7 @@
                             <i class="fas fa-futbol"></i>
                         </div>
                         <h3>Sports</h3>
-                    </div>
+                    </div> --}}
                     
                    
                 </div>
@@ -73,13 +95,14 @@
             <div class="container">
                 <h2 class="section-title">Featured Products</h2>
                 <div class="product-grid">
+
                     @forelse($featured as $product)
                         <div class="product-card">
                             @if($product->discount_price)
                                 <span class="product-badge">Sale</span>
                             @endif
                             
-                        
+                            {{-- Product Image --}} 
 
                             @if ($product->images && $product->images->count())
                                 <img  class="product-image" src="{{ asset('storage/' . $product->images->first()->image_path) }}" alt="{{ $product->name }}">
@@ -151,6 +174,7 @@
             <div class="container">
                 <h2 class="section-title">Featured Vendors</h2>
                 <div class="vendor-grid">
+                   
                     <div class="vendor-card">
                         <img src="https://images.unsplash.com/photo-1628563694622-5a76957fd09c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGVjaCUyMGxvZ298ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="TechGadgets" class="vendor-avatar">
                         <h3 class="vendor-name">TechGadgets</h3>
