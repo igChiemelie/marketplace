@@ -52,10 +52,10 @@
                    
                   
                     
-                    <div class="cart-preview header-action-item" style="position: relative;">
+                    <div class="cart-preview header-action-item" style="position: relative;" data-cart-items-url="{{ route('cart.items') }}">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Cart</span>
-                        <span class="cart-count">0</span>
+                        <span id="cart-count" class="cart-count">{{ $cartCount }}</span>
                         
                         <div class="cart-dropdown" id="cart-dropdown">
                             <div class="empty-cart-message">

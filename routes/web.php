@@ -124,7 +124,9 @@ Route::get('/vendor/{vendor:shop_slug}', [ProductBrowseController::class,'vendor
 
 // Cart
 Route::get('/cart',[CartController::class,'index'])->name('cart.index');
+Route::get('/cart/items',[CartController::class,'getCartItems'])->name('cart.items');
 Route::post('/cart/add/{product}',[CartController::class,'add'])->name('cart.add');
+Route::patch('/cart/update/{item}',[CartController::class,'update'])->name('cart.update');
 Route::delete('/cart/remove/{item}',[CartController::class,'remove'])->name('cart.remove');
 
 

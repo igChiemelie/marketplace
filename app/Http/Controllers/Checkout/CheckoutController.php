@@ -32,6 +32,15 @@ class CheckoutController extends Controller
 
     public function placeOrder(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+        ]);
+
         $items = CartItem::where('user_id', auth()->id())->with('product.vendor')->get();
         abort_if($items->isEmpty(), 422, 'Cart empty');
         $summary = $this->calculate($items);
