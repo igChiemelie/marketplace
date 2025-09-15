@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Checkout;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\CartItem;
+use App\Models\VendorProfile;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
@@ -24,72 +25,130 @@ class CheckoutController extends Controller
 
     public function show()
     {
-        $items = CartItem::where('user_id', auth()->id())->with('product.vendor')->get();
-        abort_if($items->isEmpty(), 404, 'Cart empty');
-        $summary = $this->calculate($items);
-        return view('storefront.checkout.show', compact('items','summary'));
+        return view('checkout')->with('account_details', [
+            'bank'   => 'First Bank',
+            'name'   => 'QFS SecureHub Ltd',
+            'number' => '1234567890',
+        ]);
     }
 
     public function placeOrder(Request $request)
     {
-        $items = CartItem::where('user_id', auth()->id())->with('product.vendor')->get();
-        abort_if($items->isEmpty(), 422, 'Cart empty');
-        $summary = $this->calculate($items);
-        DB::transaction(function() use ($items, $summary, &$order, $request) {
-            $order = Order::create([
-                'order_number' => strtoupper(Str::random(12)),
-                'customer_id' => auth()->id(),
-                'total_amount' => $summary['grand_total'],
-                'tax_amount' => $summary['tax_total'],
-                'shipping_amount' => $summary['shipping_total'],
-                'discount_amount' => 0,
-                'status' => 'pending',
-                'payment_status' => 'pending',
-            ]);
+        $request->validate([
+            'fullname' => 'required|string|max:255',
+            'email'    => 'required|email',
+            'phone'    => 'required|string|max:20',
+            'address'  => 'required|string',
+            'city'     => 'required|string|max:100',
+            'zip'      => 'required|string|max:20',
+            'payment'  => 'required|string|in:card,paypal,money_transfer,cod',
+            'cart'     => 'required',
+        ]);
 
-            foreach ($items as $ci) {
-                $product = $ci->product;
-                if ($product->track_quantity && !$product->allow_backorder && $product->quantity < $ci->quantity) {
-                    abort(422, "Insufficient stock for {$product->name}");
-                }
-                if ($product->track_quantity) $product->decrement('quantity', $ci->quantity);
-                $lineTotal = $product->price * $ci->quantity;
-                $orderItem = OrderItem::create(['order_id'=>$order->id,'product_id'=>$product->id,'vendor_id'=>$product->vendor_id,'quantity'=>$ci->quantity,'price'=>$product->price,'total'=>$lineTotal]);
-                // create vendor commission record etc (omitted for brevity)
-                // notify vendor
-                $vendorUser = $product->vendor->user;
-                Mail::to($vendorUser->email)->queue(new VendorOrderNotificationMail($product->vendor, [$orderItem]));
-            }
-
-            CartItem::where('user_id', auth()->id())->update(['checked_out'=>true]);
-        });
-
-        // initialize Paystack transaction
-        $init = $this->paystack->initializeTransaction(auth()->user()->email, $summary['grand_total'], ['order_id'=>$order->id]);
-        if (!empty($init['data']['authorization_url'])) {
-            // store transaction reference in DB (omitted) and redirect user
-            return redirect($init['data']['authorization_url']);
+        $cart = json_decode($request->cart, true);
+        if (empty($cart)) {
+            return back()->with('error', 'Your cart is empty.');
         }
 
-        return redirect()->route('customer.dashboard')->with('error','Payment initiation failed');
+        // Calculate total
+        $total = collect($cart)->reduce(function ($carry, $item) {
+            return $carry + ($item['product']['price'] * $item['quantity']);
+        }, 0);
+
+        // Create order & order items
+        DB::transaction(function () use ($request, $cart, $total, &$order) {
+            $order = Order::create([
+                'order_number'   => strtoupper(Str::random(12)),
+                'customer_id'    => auth()->id(),
+                'fullname'       => $request->fullname,
+                'email'          => $request->email,
+                'phone'          => $request->phone,
+                'address'        => $request->address,
+                'city'           => $request->city,
+                'zip'            => $request->zip,
+                'payment_method' => $request->payment,
+                'total_amount'   => $total,
+                'status'         => 'pending',
+                'payment_status' => in_array($request->payment, ['card']) ? 'pending' : 'pending',
+            ]);
+
+            foreach ($cart as $item) {
+                $vendorId = $item['product']['vendor'] ?? null;
+
+                $orderItem = OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item['product']['id'],
+                    'vendor_id'  => $item['product']['vendor'] ?? 1,
+                    'quantity'   => $item['quantity'],
+                    'price'      => $item['product']['price'],
+                    'total'      => $item['product']['price'] * $item['quantity'],
+                ]);
+
+                $vendor = VendorProfile::find($vendorId);
+                $vendorUser = $vendor?->user;
+
+                if ($vendorUser && $vendorUser->email) {
+                    Mail::to($vendorUser->email)->queue(
+                        new VendorOrderNotificationMail($vendor, $order, $orderItem)
+                    );
+                }
+            }
+        });
+
+        // Handle payment
+        switch ($request->payment) {
+            case 'money_transfer':
+            case 'cod':
+                return redirect()->route('checkout.success')
+                    ->with('success', 'Order placed successfully! Please use the details below to complete payment.')
+                    ->with('account_details', [
+                        'bank'   => 'First Bank',
+                        'name'   => 'QFS SecureHub Ltd',
+                        'number' => '1234567890',
+                        'amount' => $total,
+                    ]);
+
+            case 'card':
+                $init = $this->paystack->initializeTransaction(
+                    $request->email,
+                    $total,
+                    ['order_id' => $order->id]
+                );
+
+                if (!empty($init['data']['authorization_url']) && !empty($init['data']['reference'])) {
+                    // Save Paystack reference to order for later verification
+                    $order->update([
+                        'transaction_reference' => $init['data']['reference'],
+                    ]);
+
+                    return redirect($init['data']['authorization_url']);
+                }
+
+                return redirect()->route('customer.dashboard')->with('error', 'Payment initiation failed.');
+
+            case 'paypal':
+                return redirect()->route('customer.dashboard')->with('info', 'PayPal integration coming soon.');
+        }
     }
 
     public function callback(Request $request)
     {
         $ref = $request->query('reference');
         $verify = $this->paystack->verifyTransaction($ref);
-        if (!empty($verify['data']['status']) && $verify['data']['status'] === 'success') {
-            // find order by metadata (omitted) and mark paid
-            return redirect()->route('customer.dashboard')->with('success','Payment successful');
-        }
-        return redirect()->route('customer.dashboard')->with('error','Payment failed');
-    }
 
-    protected function calculate($items)
-    {
-        $subtotal = $items->sum(fn($i) => $i->product->price * $i->quantity);
-        $tax = 0;
-        $shipping = 0;
-        return ['subtotal'=>$subtotal,'tax_total'=>$tax,'shipping_total'=>$shipping,'grand_total'=>$subtotal+$tax+$shipping];
+        if (!empty($verify['data']['status']) && $verify['data']['status'] === 'success') {
+            // Find order by reference
+            $order = Order::where('transaction_reference', $ref)->first();
+            if ($order && $order->payment_status !== 'paid') {
+                $order->update([
+                    'payment_status' => 'paid',
+                    'status' => 'processing',
+                ]);
+            }
+
+            return redirect()->route('customer.dashboard')->with('success', 'Payment successful');
+        }
+
+        return redirect()->route('customer.dashboard')->with('error', 'Payment failed');
     }
 }

@@ -4,14 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketHub - Vendor Dashboard</title>
+    <title>{{ ucfirst(config('app.name')) }} - Vendor Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {{-- <link rel="stylesheet" href="css/style.css"> --}}
     @vite(['resources/custom/css/styles.css', 'resources/custom/js/script2.js'])
+    <style>
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+        }
 
+        .badge i {
+            margin-right: 6px;
+        }
 
+        /* Verified */
+        .badge.verified {
+            background: #2ecc71;
+            color: #fff;
+        }
 
-
+        /* Unverified */
+        .badge.unverified {
+            background: #e74c3c;
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,26 +47,45 @@
                 </button>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="dashboard" class="nav-link active"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+                <li><a href="/" class="nav-link"><i class="fas fa-th-large"></i>
+                        <span>Home</span></a>
+                </li>
+                @if (Auth::check() && Auth::user()->role == 'customer')
+                    <li><a href="/checkout" class="nav-link"><i class="fas fa-shopping-basket"></i>
+                            <span>Cart</span></a></li>
+                @endif
+                <li><a href="dashboard" class="nav-link active"><i class="fas fa-th-large"></i>
+                        <span>Dashboard</span></a>
                 </li>
                 <li><a href="profile" class="nav-link"><i class="fas fa-user"></i> <span>Manage Profile</span></a></li>
-                <li><a href="products" class="nav-link"><i class="fas fa-box"></i> <span>Products</span></a></li>
+                @if (Auth::check() && Auth::user()->role == 'vendor')
+                    <li><a href="products" class="nav-link"><i class="fas fa-box"></i> <span>Products</span></a></li>
+                    <li><a href="transactions" class="nav-link"><i
+                                class="fas fa-money-bill-wave"></i><span>Transactions</span></a></li>
+                @endif
                 {{-- <li><a href="reviews" class="nav-link"><i class="fas fa-star"></i> <span>Product Reviews</span></a></li> --}}
                 <li><a href="orders" class="nav-link"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
-                <li><a href="transactions" class="nav-link"><i class="fas fa-money-bill-wave"></i>
-                        <span>Transactions</span></a></li>
-                {{-- <li><a href="cart" class="nav-link"><i class="fas fa-shopping-basket"></i> <span>Cart</span></a></li> --}}
-                <li><a href="settings" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+
+                {{-- <li><a href="cart" class="nav-link"><i class="fas fa-shopping-basket"></i> <span>Cart</span></a></li>
+                 --}}
+                @if (Auth::check() && Auth::user()->role == 'vendor')
+                    <li><a href="{{ route('vendor.profile.edit') }}" class="nav-link"><i class="fas fa-cog"></i>
+                            <span>Settings</span></a></li>
+                @else
+                    <li><a href="{{ route('customer.profile') }}" class="nav-link"><i class="fas fa-cog"></i>
+                            <span>Settings</span></a></li>
+                @endif
+
+
+
                 <li>
-                    <a href="#" class="nav-link" id="logout-btn">
+                    <a href="#" class="nav-link logout-btn">
                         <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
                         @csrf
                     </form>
                 </li>
-
-
 
 
             </ul>
@@ -62,17 +103,37 @@
                     <input type="text" placeholder="Search...">
                 </div>
                 <div class="user-menu">
-                    <div class="notification">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </div>
-                    <div class="cart-icon" id="cart-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge" id="cart-count">0</span>
-                    </div>
+                    @if (Auth::check() && Auth::user()->role == 'vendor')
+                        <div class="notification">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </div>
+
+
+                        @if (auth()->user()->status == 'active')
+                           
+                            <span class="badge verified">
+                                <i class="check-icon">✔</i> Verified
+                            </span>
+                        @else
+                            <span class="badge unverified">
+                                <i class="cross-icon">✖</i> Unverified
+                            </span> 
+                        @endif
+                    @endif
+
+                    @if (Auth::check() && Auth::user()->role == 'customer')
+                        <a href="/checkout">
+                            <div class="cart-icon" id="cart-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge" id="cart-count">0</span>
+                            </div>
+                        </a>
+                    @endif
+
                     <div class="user-profile" id="user-profile">
-                        <div class="user-avatar">{{strtoupper (substr(Auth::user()->name, 0,2))}}</div>
-                        <div class="user-name">{{ (Auth::user()->name)}}</div>
+                        <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</div>
+                        <div class="user-name">{{ Auth::user()->name }}</div>
                         <div class="dropdown-menu" id="user-dropdown">
                             <a href="#" class="dropdown-item" data-tab="profile">
                                 <i class="fas fa-user"></i> Profile
@@ -94,15 +155,6 @@
                 </div>
             </div>
 
-            <!-- Navigation Bar -->
-            <!-- <div class="nav-bar">
-                <a href="#" class="nav-link active" data-tab="dashboard">Dashboard</a>
-                <a href="#" class="nav-link" data-tab="products">Products</a>
-                <a href="#" class="nav-link" data-tab="orders">Orders</a>
-                <a href="#" class="nav-link" data-tab="transactions">Transactions</a>
-                <a href="#" class="nav-link" data-tab="reviews">Reviews</a>
-                <a href="#" class="nav-link" data-tab="cart">Cart</a>
-            </div> -->
 
             <!-- Content Area -->
             <div id="app">
@@ -112,12 +164,6 @@
             </div>
         </div>
     </div>
-
-  
-
-
-
-    
 
     <!-- Create Order Modal -->
     <div class="modal" id="create-order-modal">
@@ -171,8 +217,8 @@
         </div>
     </div>
 
-    <script src="js/script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
     <script>
         document.querySelectorAll('.logout-btn').forEach(button => {
             button.addEventListener('click', function(e) {
@@ -193,4 +239,5 @@
         });
     </script>
 </body>
+
 </html>

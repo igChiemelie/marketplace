@@ -9,12 +9,23 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Get vendor's product count
         $vendor = auth()->user()->vendorProfile->products()->count();
-        // $vendor = auth()->user()->vendorProfile;
-        $order = Order::whereHas('items.product', function($q){
-            $q->where('vendor_id', auth()->id());
-        })->latest()->count();
 
-        return view('vendor.index', compact('vendor', 'order'));
+        // Get vendorProfile model
+        $vendorProfile = auth()->user()->vendorProfile;
+
+        if (!$vendorProfile) {
+            abort(403, 'Vendor profile not found.');
+        }
+
+        $vendor_id = $vendorProfile->id;
+
+        // Fetch orders that have items belonging to this vendor
+        $orders = Order::whereHas('items.product', function ($q) use ($vendor_id) {
+            $q->where('vendor_id', $vendor_id);
+        })->latest()->get();
+
+        return view('vendor.index', compact('vendor', 'orders'));
     }
 }

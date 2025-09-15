@@ -28,7 +28,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -52,7 +52,12 @@ class LoginController extends Controller
     {
         if (Auth::attempt($request->only('email','password'))) {
             if (Auth::user()->role === 'customer') {
-                return redirect()->route('customer.dashboard');
+                // return redirect()->route('customer.dashboard');
+                // return redirect()->route('home');
+                // return redirect()->intended(route('checkout.show'));
+                // dd(session()->all());
+                // 👇 Go to intended URL if exists, otherwise /home
+                return redirect()->intended($this->redirectTo);
             }
             Auth::logout();
         }
@@ -82,8 +87,6 @@ class LoginController extends Controller
     {
         // return view('auth.admin_login');
         return view('auth.admin_login');
-
-
     }
 
     public function adminLogin(Request $request)

@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketHub - Multi-Vendor Login & Register</title>
+    <title>{{ ucfirst(config('app.name'))}} - Multi-Vendor Login & Register</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -330,7 +329,7 @@
 <body>
     <div class="container">
         <div class="left-panel">
-            <h2>New to MarketHub?</h2>
+            <h2>New to {{ ucfirst(config('app.name'))}}?</h2>
             <p>Join our community and enjoy a seamless shopping experience with exclusive deals, personalized recommendations, and faster checkout.</p>
             <button id="switch-to-register">Sign Up</button>
         </div>
@@ -338,7 +337,8 @@
         <div class="right-panel">
             <div class="form-container">
                 <div class="logo">
-                    <h1><i class="fas fa-store"></i> Market<span>Hub</span></h1>
+                    <h1><i class="fas fa-store"></i> {{ substr (config('app.name'),0, 5) }}<span>{{ substr (config('app.name'),5, 9) }}</span></h1>
+                    {{-- <a href="#" class="logo" id="home-link"><i class="fas fa-store"></i>Market<span>Hub</span></a> --}}
                 </div>
                 
                 <!-- Login Form -->
@@ -387,7 +387,16 @@
                         </a>
                     @endif
                     
-                    <button type="submit" class="submit-btn">{{ __('Login as Vendor') }}</button>
+                    <button type="submit" class="submit-btn">
+                        @if (Route::currentRouteNamed('login.vendor'))
+                            {{ __('Login as Vendor') }}
+                        @elseif (Route::currentRouteNamed('login.admin'))
+                            {{ __('Login as Admin') }}
+                        @else
+                            {{ __('Login as Customer') }}
+                        @endif
+                    </button>
+                    
                     
                     <div class="switch-form">
                         Don't have an account? <a href="/register">Register Now</a>

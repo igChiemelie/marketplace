@@ -108,3 +108,77 @@ It excludes vendor/ (composer dependencies) to keep the zip small. After downloa
 
 
 theatre 
+
+
+
+@forelse($featured as $product)
+<div class="product-card">
+    @if($product->discount_price)
+        <span class="product-badge">Sale</span>
+    @endif
+    
+
+
+    @if ($product->images && $product->images->count())
+        <img  class="product-image" src="{{ asset('storage/' . $product->images->first()->image_path) }}" alt="{{ $product->name }}">
+    @else
+        <img src="{{ asset('images/no-image.png') }}" alt="No Image">
+    @endif
+    
+    <div class="product-info">
+        <div class="product-vendor">
+            {{ $product->vendor->shop_name ?? 'Unknown Vendor' }}
+        </div>
+        
+        <h3 class="product-title">
+            <a href="{{ route('products.show', $product->slug) }}">
+                {{ Str::limit($product->name, 50) }}
+            </a>
+        </h3>
+        
+        {{-- Ratings (optional if you store them) --}}
+        {{-- <div class="product-rating">
+            <div class="product-stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+            </div>
+            <span class="product-reviews">(128 reviews)</span>
+        </div> --}}
+        
+        {{-- Price --}}
+        <div class="product-price">
+            @if($product->discount_price)
+                <span class="text-red-600">₦{{ $product->discount_price }}</span>
+                <del class="text-gray-500">₦{{ $product->price }}</del>
+            @else
+                ₦{{ $product->price }}
+            @endif
+        </div>
+        
+        <div class="product-actions">
+            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="cart-form">
+                @csrf
+                {{-- <button type="submit" class="add-to-cart-btn">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button> --}}
+                <button class="add-to-cart" data-product="{{$product->id}}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+
+            </form>
+
+            <a href="{{ route('products.show', $product->slug) }}" class="view-product">
+                <i class="fas fa-eye"></i> View
+            </a>
+
+            <button class="wishlist" data-product="{{ $product->id }}">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+
+    </div>
+</div>
+@empty
+<p>No featured products available.</p>
+@endforelse

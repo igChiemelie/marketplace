@@ -8,7 +8,7 @@ class VendorApprovalController extends Controller
 {
     public function index()
     {
-        $vendors = VendorProfile::with('user')->paginate(20);
+        $vendors = VendorProfile::with('user')->paginate(4);
         return view('admin.vendors.index', compact('vendors'));
     }
     public function approve(VendorProfile $vendor)
@@ -24,4 +24,11 @@ class VendorApprovalController extends Controller
         $vendor->user->update(['status' => 'inactive']);
         return back()->with('success', 'Vendor rejected');
     }
-}
+
+    public function destroy(VendorProfile $vendor)
+    {
+        $vendor->delete();
+        $vendor->user->delete();
+        return back()->with('success', 'Vendor deleted');
+    }
+}   

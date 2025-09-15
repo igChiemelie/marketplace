@@ -53,9 +53,21 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable, HasFactory;
 
-    protected $fillable = ['name','email','password','role','status','phone','avatar'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'status',
+        'phone',
+        'bank_name',
+        'acct_name',
+        'acct_no',
+        'address',
+        'avatar'
+    ];
 
-    protected $hidden = ['password','remember_token'];
+    protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
@@ -70,14 +82,36 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(VendorProfile::class, 'user_id');
     }
 
-    public function cartItems() { return $this->hasMany(CartItem::class); }
-    public function orders() { return $this->hasMany(Order::class, 'customer_id'); }
-    public function wishlist() { return $this->hasMany(Wishlist::class); }
-    public function transactions() { return $this->hasMany(Transaction::class); }
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 
-    public function isVendor() { return $this->role === 'vendor'; }
-    public function isAdmin() { return $this->role === 'admin'; }
-    public function isCustomer() { return $this->role === 'customer'; }
+    public function isVendor()
+    {
+        return $this->role === 'vendor';
+    }
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+    public function isCustomer()
+    {
+        return $this->role === 'customer';
+    }
+    
     // public function products()
     // {
     //     return $this->hasMany(Product::class, 'vendor_id'); 

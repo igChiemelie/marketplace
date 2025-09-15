@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketHub - Multi-Vendor Login & Register</title>
+    <title>{{ ucfirst(config('app.name'))}} - Multi-Vendor Login & Register</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -321,7 +321,7 @@
 <body>
     <div class="container">
         <div class="left-panel">
-            <h2>New to MarketHub?</h2>
+            <h2>New to {{ ucfirst(config('app.name'))}}?</h2>
             <p>Join our community and enjoy a seamless shopping experience with exclusive deals, personalized recommendations, and faster checkout.</p>
             <button id="switch-to-register">Sign Up</button>
         </div>
@@ -329,13 +329,15 @@
         <div class="right-panel">
             <div class="form-container">
                 <div class="logo">
-                    <h1><i class="fas fa-store"></i> Market<span>Hub</span></h1>
+                <h1><i class="fas fa-store"></i> {{ substr (config('app.name'),0, 5) }}<span>{{ substr (config('app.name'),5, 9) }}</span></h1>
+
                 </div>
                 
                
                 
                 <!-- Register Form -->
-                <form class="register-form">
+                <form class="register-form" method="POST" action="{{route('customer.register')}}">
+                        @csrf
                     <div class="social-login">
                         <button type="button" class="social-btn fb-btn">
                             <i class="fab fa-facebook-f"></i> Facebook
@@ -363,7 +365,7 @@
                         <label for="register-name">Full Name</label>
                         <div class="input-with-icon">
                             <i class="fas fa-user"></i>
-                            <input type="text" id="register-name" placeholder="Enter your full name" required>
+                            <input type="text" id="register-name" name="name" placeholder="Enter your full name" required>
                         </div>
                     </div>
                     
@@ -371,7 +373,7 @@
                         <label for="register-email">Email</label>
                         <div class="input-with-icon">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="register-email" placeholder="Enter your email" required>
+                            <input type="email" name="email" id="register-email" placeholder="Enter your email" required>
                         </div>
                     </div>
                     
@@ -381,7 +383,7 @@
                         <label for="register-password">Password</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="register-password" placeholder="Create a password" required>
+                            <input type="password" name="password" id="register-password" placeholder="Create a password" required>
                         </div>
                     </div>
                     
@@ -389,7 +391,7 @@
                         <label for="register-confirm">Confirm Password</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="register-confirm" placeholder="Confirm your password" required>
+                            <input type="password" name="password_confirmation" id="register-confirm" placeholder="Confirm your password" required>
                         </div>
                     </div>
                     
@@ -407,125 +409,6 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.querySelector('.login-form');
-            const registerForm = document.querySelector('.register-form');
-            const switchToRegisterBtn = document.getElementById('switch-to-register');
-            const switchToRegisterLink = document.getElementById('switch-to-register-link');
-            const switchToLoginLink = document.getElementById('switch-to-login-link');
-            const leftPanel = document.querySelector('.left-panel');
-            const userTypeBtns = document.querySelectorAll('.user-type-btn');
-            const userTypeField = document.getElementById('user-type');
-            const vendorFields = document.querySelector('.vendor-fields');
-            
-            // Switch to Register Form
-            function showRegisterForm() {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                leftPanel.innerHTML = `
-                    <h2>Welcome Back!</h2>
-                    <p>Login to access your account, track orders, and manage your preferences.</p>
-                    <button id="switch-to-login">Login</button>
-                `;
-                
-                // Add event listener to the new button
-                document.getElementById('switch-to-login').addEventListener('click', showLoginForm);
-            }
-            
-            // Switch to Login Form
-            function showLoginForm() {
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                leftPanel.innerHTML = `
-                    <h2>New to MarketHub?</h2>
-                    <p>Join our community and enjoy a seamless shopping experience with exclusive deals, personalized recommendations, and faster checkout.</p>
-                    <button id="switch-to-register">Sign Up</button>
-                `;
-                
-                // Add event listener to the new button
-                document.getElementById('switch-to-register').addEventListener('click', showRegisterForm);
-            }
-            
-            // User type selection
-            userTypeBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    userTypeBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const userType = this.getAttribute('data-type');
-                    userTypeField.value = userType;
-                    
-                    if (userType === 'vendor') {
-                        vendorFields.style.display = 'block';
-                    } else {
-                        vendorFields.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Event listeners
-            switchToRegisterBtn.addEventListener('click', showRegisterForm);
-            switchToRegisterLink.addEventListener('click', showRegisterForm);
-            switchToLoginLink.addEventListener('click', showLoginForm);
-            
-            // Form submission
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
-                
-                // Simple validation
-                if (!email || !password) {
-                    alert('Please fill in all fields');
-                    return;
-                }
-                
-                // Simulate successful login
-                // In a real application, you would verify credentials with a server
-                simulateLoginSuccess();
-            });
-            
-            // Function to simulate successful login and redirect
-            function simulateLoginSuccess() {
-                // Show loading state
-                const loginBtn = loginForm.querySelector('.submit-btn');
-                const originalText = loginBtn.textContent;
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-                loginBtn.disabled = true;
-                
-                // Simulate API call delay
-                setTimeout(function() {
-                    // Redirect to dashboard
-                    window.location.href = 'dashboard/index.html';
-                }, 1500);
-            }
-            
-            registerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const userType = userTypeField.value;
-                const name = document.getElementById('register-name').value;
-                const email = document.getElementById('register-email').value;
-                const password = document.getElementById('register-password').value;
-                const confirmPassword = document.getElementById('register-confirm').value;
-                
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
-                    return;
-                }
-                
-                if (userType === 'vendor') {
-                    const storeName = document.getElementById('store-name').value;
-                    const businessType = document.getElementById('business-type').value;
-                    
-                    alert(`Vendor registration would be submitted:\nName: ${name}\nEmail: ${email}\nStore: ${storeName}\nBusiness: ${businessType}`);
-                } else {
-                    alert(`Customer registration would be submitted:\nName: ${name}\nEmail: ${email}`);
-                }
-            });
-        });
-    </script>
+    
 </body>
 </html>

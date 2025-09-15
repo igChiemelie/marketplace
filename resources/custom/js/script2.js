@@ -1,3 +1,7 @@
+import Swal from 'sweetalert2';
+// Make Swal global so you can call it from Blade
+window.Swal = Swal;
+
 document.addEventListener('DOMContentLoaded', function () {
     // Set current date
     const now = new Date();
@@ -7,10 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         currentDateEl.textContent = now.toLocaleDateString('en-US', options);
     }
 
-    // Initialize cart
-    let cart = JSON.parse(localStorage.getItem('marketHubCart')) || [];
-    updateCartCount();
-    renderCartItems();
 
     // Check for saved dark mode preference
     const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     //Edit Product Modal
-    const editProductBtns = document.querySelectorAll('.edit-product-btn');
+    const editProductBtns = document.getElementById('edit-product-btn');
     const editProductModal = document.getElementById('edit-product-modal');
     const closeEditModalBtn = document.getElementById('close-edit-modal');
    const closeEditModalX = document.querySelector('#edit-product-modal .close');
@@ -228,130 +228,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ====== Cart functions ======
-    function addToCart(id, name, price, image) {
-        const existingItem = cart.find(item => item.id === id);
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({ id, name, price, image, quantity: 1 });
-        }
-        updateCart();
-    }
-
-    function updateCart() {
-        localStorage.setItem('marketHubCart', JSON.stringify(cart));
-        updateCartCount();
-        renderCartItems();
-    }
+    let cart = JSON.parse(localStorage.getItem('marketplace-cart')) || [];
+    // const cartCount = document.querySelector('.cart-count');
 
     function updateCartCount() {
         const cartCount = document.getElementById('cart-count');
+        // console.log(cartCount);
+        
         if (cartCount) {
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
             cartCount.textContent = totalItems;
         }
     }
 
-    function renderCartItems() {
-        const cartContainer = document.getElementById('cart-items-container');
-        const emptyCartMessage = document.getElementById('empty-cart-message');
-        const cartItemsCount = document.getElementById('cart-items-count');
-        const checkoutBtn = document.getElementById('checkout-btn');
-
-        if (!cartContainer) return;
-
-        if (cart.length === 0) {
-            if (emptyCartMessage) emptyCartMessage.style.display = 'block';
-            if (cartItemsCount) cartItemsCount.textContent = '0 items';
-            if (checkoutBtn) checkoutBtn.disabled = true;
-            return;
-        }
-
-        if (emptyCartMessage) emptyCartMessage.style.display = 'none';
-
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        if (cartItemsCount) cartItemsCount.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
-
-        let cartHTML = '';
-        let subtotal = 0;
-
-        cart.forEach(item => {
-            const itemTotal = item.price * item.quantity;
-            subtotal += itemTotal;
-            cartHTML += `
-                <div class="cart-item" data-id="${item.id}">
-                    <div class="cart-item-image">
-                        <img src="${item.image}" alt="${item.name}">
-                    </div>
-                    <div class="cart-item-details">
-                        <div class="cart-item-title">${item.name}</div>
-                        <div class="cart-item-price">$${item.price.toFixed(2)}</div>
-                        <div class="cart-item-actions">
-                            <div class="quantity-control">
-                                <button class="quantity-btn decrease-qty" data-id="${item.id}">-</button>
-                                <span>${item.quantity}</span>
-                                <button class="quantity-btn increase-qty" data-id="${item.id}">+</button>
-                            </div>
-                            <div class="cart-item-remove" data-id="${item.id}">
-                                <i class="fas fa-trash"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        cartContainer.innerHTML = cartHTML;
-
-        const shipping = subtotal > 0 ? 9.99 : 0;
-        const tax = subtotal * 0.08;
-        const total = subtotal + shipping + tax;
-
-        const subEl = document.getElementById('cart-subtotal');
-        const shipEl = document.getElementById('cart-shipping');
-        const taxEl = document.getElementById('cart-tax');
-        const totalEl = document.getElementById('cart-total');
-
-        if (subEl) subEl.textContent = `$${subtotal.toFixed(2)}`;
-        if (shipEl) shipEl.textContent = `$${shipping.toFixed(2)}`;
-        if (taxEl) taxEl.textContent = `$${tax.toFixed(2)}`;
-        if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
-
-        if (checkoutBtn) checkoutBtn.disabled = false;
-
-        // Quantity buttons
-        document.querySelectorAll('.increase-qty').forEach(button => {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                const item = cart.find(item => item.id === id);
-                if (item) {
-                    item.quantity += 1;
-                    updateCart();
-                }
-            });
-        });
-
-        document.querySelectorAll('.decrease-qty').forEach(button => {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                const item = cart.find(item => item.id === id);
-                if (item) {
-                    item.quantity -= 1;
-                    if (item.quantity === 0) {
-                        cart = cart.filter(item => item.id !== id);
-                    }
-                    updateCart();
-                }
-            });
-        });
-
-        document.querySelectorAll('.cart-item-remove').forEach(button => {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                cart = cart.filter(item => item.id !== id);
-                updateCart();
-            });
-        });
-    }
+   updateCartCount();
 });
+
+
 

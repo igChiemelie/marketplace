@@ -5,20 +5,22 @@
         <div id="profile">
             <div class="page-title">
                 <h1>Manage Profile</h1>
+                <div>Today: <span id="current-date">Monday, Oct 16, 2023</span></div>
+
             </div>
 
             <!-- Profile Header -->
             <div class="profile-header">
                 <!-- Banner -->
-                @if ($vendor->banner)
-                    <img src="{{ asset('storage/' . $vendor->banner) }}" alt="Banner" class="profile-banner"
+                {{-- @if ($vendor->shop_banner)
+                    <img src="{{ asset('storage/' .$vendor->shop_banner) }}" alt="Banner" class="profile-banner"
                         style="width:100%; height:200px; object-fit:cover; border-radius:8px;">
-                @endif
+                @endif --}}
 
                 <!-- Avatar / Logo -->
                 <div class="profile-avatar" style="margin-top:-50px;">
-                    @if ($vendor->logo)
-                        <img src="{{ asset('storage/vendors/logos/' . $vendor->shop_logo) }}" alt="Logo" class="logo-img"
+                    @if ($vendor->shop_logo)
+                        <img src="{{ asset('storage/'.$vendor->shop_logo) }}" alt="Logo" class="logo-img"
                             style="width:100px; height:100px; border-radius:50%; border:3px solid #fff;">
                     @else
                         <div
@@ -72,8 +74,8 @@
                             <label>Shop Logo</label>
                             <input type="file" name="shop_logo" id="logo" class="form-control" accept="image/*">
                             <div id="logo-preview" style="margin-top:10px;">
-                               @if(Storage::exists($vendor->shop_logo))
-                                    <img src="{{ asset('storage/'.$vendor->shop_logo) }}" alt="Logo">
+                               @if($vendor->shop_logo)
+                                    <img src="{{ asset('storage/'.$vendor->shop_logo) }}" alt="Logo" width="300">
                                 @else
                                     <p>Logo not found!</p>
                                 @endif
@@ -87,8 +89,8 @@
                                 {{-- @if($vendor->shop_banner)
                                     <img src="{{ asset('storage/'.$vendor->shop_banner) }}" width="300">
                                 @endif --}}
-                                @if(Storage::exists($vendor->shop_banner))
-                                    <img src="{{ asset('storage/'.$vendor->shop_banner) }}" alt="Logo">
+                                @if($vendor->shop_banner)
+                                    <img src="{{ asset('storage/'.$vendor->shop_banner) }}" alt="Logo" width="300">
                                 @else
                                     <p>Logo not found!</p>
                                 @endif

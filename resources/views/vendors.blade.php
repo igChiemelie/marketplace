@@ -1,84 +1,99 @@
 @extends('layouts.nav')
 
 @section('content')
-
-
     <!-- Vendors Page Content -->
-     <br>
+    <br>
     <div id="vendors-page">
         <div class="container">
             <div class="category-page-header">
-                <h2>Vendors</h2>
+                <h2>All Vendors</h2>
                 <p>Discover our trusted vendors and their stores</p>
             </div>
-            
-            <div class="vendors">
-                <h2 class="section-title">Featured Vendors</h2>
-                <div class="vendor-grid">
+
+            <div class="vendor-grid">
+                @forelse ($vendors as $vendor)
                     <div class="vendor-card">
-                        <img src="https://images.unsplash.com/photo-1628563694622-5a76957fd09c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGVjaCUyMGxvZ298ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="TechGadgets" class="vendor-avatar">
-                        <h3 class="vendor-name">TechGadgets</h3>
+
+                        @if($vendor->shop_logo)
+                            <img src="{{ asset('storage/' . $vendor->shop_logo) }}" alt="{{ $vendor->name }}" class="vendor-avatar">     
+                        @else
+                            <img src="https://images.unsplash.com/photo-1628563694622-5a76957fd09c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGVjaCUyMGxvZ298ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="TechGadgets" class="vendor-avatar">
+
+                        @endif
+                        <h3 class="vendor-name">{{ $vendor->name }}</h3>
                         <div class="vendor-rating">
+                            {{-- @for ($i = 0; $i < floor($vendor->rating); $i++)
+                                <i class="fas fa-star"></i>
+                            @endfor
+                            @if ($vendor->rating - floor($vendor->rating) >= 0.5)
+                                <i class="fas fa-star-half-alt"></i>
+                            @endif
+                            @for ($i = ceil($vendor->rating); $i < 5; $i++)
+                                <i class="far fa-star"></i>
+                            @endfor --}}
+                            {{-- <span>({{ $vendor->reviews_count }})</span> --}}
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                            {{-- <i class="fas fa-star"></i> --}}
                             <i class="fas fa-star-half-alt"></i>
-                            <span>(128)</span>
+                            <span>({{ $vendor->products_count }})</span>
+                            
                         </div>
-                        <div class="vendor-products">245 Products</div>
-                        <a href="#" class="view-store">Visit Store</a>
+                        <div class="vendor-products">{{ $vendor->products_count }} Products</div>
+                        <a href="{{ route('vendors.shop', $vendor->shop_slug) }}" class="view-store">Visit Store</a>
                     </div>
-                    
-                    <div class="vendor-card">
-                        <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFzaGlvbiUyMGxvZ298ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="FashionStore" class="vendor-avatar">
-                        <h3 class="vendor-name">FashionStore</h3>
-                        <div class="vendor-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(96)</span>
-                        </div>
-                        <div class="vendor-products">312 Products</div>
-                        <a href="#" class="view-store">Visit Store</a>
-                    </div>
-                    
-                    <div class="vendor-card">
-                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGhvbWUlMjBsb2dvfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="HomeEssentials" class="vendor-avatar">
-                        <h3 class="vendor-name">HomeEssentials</h3>
-                        <div class="vendor-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>(204)</span>
-                        </div>
-                        <div class="vendor-products">178 Products</div>
-                        <a href="#" class="view-store">Visit Store</a>
-                    </div>
-                    
-                    <div class="vendor-card">
-                        <img src="https://images.unsplash.com/photo-1634942536746-46b9a6de9231?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmVhdXR5JTIwbG9nb3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="BeautyCorner" class="vendor-avatar">
-                        <h3 class="vendor-name">BeautyCorner</h3>
-                        <div class="vendor-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(147)</span>
-                        </div>
-                        <div class="vendor-products">165 Products</div>
-                        <a href="#" class="view-store">Visit Store</a>
-                    </div>
-                </div>
+                @empty
+                    <p>No vendors available.</p>
+                @endforelse
             </div>
         </div>
-    </div>
 
-   
 
-@endsection
+     
+
+        <div class="pagination-wrapper">
+            {{ $vendors->links('vendor-pagination') }}
+        </div>
+
+
+
+        <script>
+            // Generic modal setup (using data-target for each button)
+            function setupModal(triggerSelector, closeSelectors) {
+                const triggers = document.querySelectorAll(triggerSelector);
+
+                triggers.forEach(trigger => {
+                    const modalSelector = trigger.getAttribute("data-target");
+                    const modal = document.querySelector(modalSelector);
+                    if (!modal) return;
+
+                    const closes = modal.querySelectorAll(closeSelectors);
+
+                    // Open modal on trigger click
+                    trigger.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        modal.style.display = "flex";
+                    });
+
+                    // Close modal on "X" or "Cancel"
+                    closes.forEach(closeBtn => {
+                        closeBtn.addEventListener("click", () => {
+                            modal.style.display = "none";
+                        });
+                    });
+
+                    // Close modal if clicking outside content
+                    window.addEventListener("click", (e) => {
+                        if (e.target === modal) modal.style.display = "none";
+                    });
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                console.log("JS Loaded: attaching modals...");
+                setupModal(".view-product-btn", ".close-modal, #close-view-modal");
+            });
+        </script>
+    @endsection

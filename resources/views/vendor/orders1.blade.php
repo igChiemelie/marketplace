@@ -1,91 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketHub - Vendor Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-store"></i> <span>MarketHub</span></h2>
-                <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="index.html" class="nav-link" ><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
-                <li><a href="profile.html" class="nav-link" ><i class="fas fa-user"></i> <span>Manage Profile</span></a></li>
-                <li><a href="products.html" class="nav-link" ><i class="fas fa-box"></i> <span>Products</span></a></li>
-                <li><a href="reviews.html" class="nav-link" ><i class="fas fa-star"></i> <span>Product Reviews</span></a></li>
-                <li><a href="orders.html" class="nav-link" ><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
-                <li><a href="transactions.html" class="nav-link active" ><i class="fas fa-money-bill-wave"></i> <span>Transactions</span></a></li>
-                <li><a href="cart.html" class="nav-link" ><i class="fas fa-shopping-basket"></i> <span>Cart</span></a></li>
-                <li><a href="settings.html" class="nav-link" ><i class="fas fa-cog"></i> <span>Settings</span></a></li>
-                <li><a href="logout.html" class="nav-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
-
-            </ul>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content" id="main-content">
-            <!-- Header -->
-            <div class="header">
-                <div class="menu-toggle" id="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </div>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
-                </div>
-                <div class="user-menu">
-                    <div class="notification">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </div>
-                    <div class="cart-icon" id="cart-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge" id="cart-count">0</span>
-                    </div>
-                    <div class="user-profile" id="user-profile">
-                        <div class="user-avatar">JS</div>
-                        <div class="user-name">John Smith</div>
-                        <div class="dropdown-menu" id="user-dropdown">
-                            <a href="#" class="dropdown-item" data-tab="profile">
-                                <i class="fas fa-user"></i> Profile
-                            </a>
-                            <a href="#" class="dropdown-item" data-tab="settings">
-                                <i class="fas fa-cog"></i> Settings
-                            </a>
-                            <a href="#" class="dropdown-item" id="dropdown-logout">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@extends('layouts.vendor')
+@section('title', 'Vendor Orders')
+@section('content')
 
 
-            <!-- Content Area -->
+     <!-- Content Area -->
             <div class="content">
-                <!-- Transactions Tab -->
-                <div  id="transactions">
+              
+                <!-- Orders Tab -->
+                <div  id="orders">
                     <div class="page-title">
-                        <h1>Transaction History</h1>
-                        <button class="btn btn-primary"><i class="fas fa-download"></i> Export Report</button>
+                        <h1>Order Management</h1>
+                        <button class="btn btn-primary" id="create-order-btn"><i class="fas fa-plus"></i> Create Order</button>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h2>All Transactions</h2>
+                            <h2>Recent Orders</h2>
                             <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary">All</button>
-                                <button class="btn btn-sm btn-success">Income</button>
-                                <button class="btn btn-sm btn-danger">Expenses</button>
+                                <button class="btn btn-sm btn-primary">All Orders</button>
+                                <button class="btn btn-sm btn-success">Completed</button>
+                                <button class="btn btn-sm btn-warning">Pending</button>
+                                <button class="btn btn-sm btn-danger">Cancelled</button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -93,83 +28,124 @@
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th>Transaction ID</th>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
                                             <th>Date</th>
-                                            <th>Type</th>
-                                            <th>Description</th>
+                                            <th>Items</th>
                                             <th>Amount</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if($orders->count() > 0)
+                                            @foreach ($orders as $order)
+                                                <tr>
+                                                    <td>{{ $order->order_number }}</td>
+                                                    <td>{{ $order->customer->name }}</td>
+                                                    <td>{{ $order->created_at->format('M d, Y') }}</td>
+                                                    <td>{{ $order->items->count() }}</td>
+                                                    <td>${{ number_format($order->total_amount, 2) }}</td>
+                                                    <td>
+                                                        @if($order->status == 'shipped')
+                                                            <span class="badge badge-primary">Shipped</span>
+                                                        @elseif($order->status == 'processing')
+                                                            <span class="badge badge-info">Processing</span>
+                                                        @elseif($order->status == 'pending')
+                                                            <span class="badge badge-warning">Pending</span>
+                                                        @elseif($order->status == 'delivered')
+                                                            <span class="badge badge-success">Delivered</span>
+                                                        @elseif($order->status == 'cancelled')
+                                                            <span class="badge badge-danger">Cancelled</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <div class="action-buttons">
+                                                            <button class="btn btn-sm btn-primary view-order-btn"><i class="fas fa-eye"></i></button>
+                                                            <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </td>
+                                                </tr>   
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="7" class="text-center">No orders found.</td>
+                                            </tr>    
+                                        @endif   
+
                                         <tr>
-                                            <td>#TXN-8954</td>
+                                            <td>#ORD-7256</td>
+                                            <td>Sarah Johnson</td>
                                             <td>Oct 15, 2023</td>
-                                            <td>Income</td>
-                                            <td>Payment for Order #ORD-7256</td>
-                                            <td class="text-success">+$245.99</td>
-                                            <td><span class="badge badge-success">Completed</span></td>
+                                            <td>3</td>
+                                            <td>$245.99</td>
+                                            <td><span class="badge badge-primary">Shipped</span></td>
                                             <td>
                                                 <div class="action-buttons">
                                                     <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                                    <button class="btn btn-sm btn-danger delete-transaction-btn"><i class="fas fa-trash"></i></button>
+                                                    <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>#TXN-8953</td>
+                                            <td>#ORD-7255</td>
+                                            <td>Michael Brown</td>
                                             <td>Oct 15, 2023</td>
-                                            <td>Expense</td>
-                                            <td>Shipping Fee</td>
-                                            <td class="text-danger">-$12.99</td>
-                                            <td><span class="badge badge-success">Completed</span></td>
+                                            <td>1</td>
+                                            <td>$145.50</td>
+                                            <td><span class="badge badge-info">Processing</span></td>
                                             <td>
                                                 <div class="action-buttons">
                                                     <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                                    <button class="btn btn-sm btn-danger delete-transaction-btn"><i class="fas fa-trash"></i></button>
+                                                    <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>#TXN-8952</td>
+                                            <td>#ORD-7254</td>
+                                            <td>Emily Wilson</td>
                                             <td>Oct 14, 2023</td>
-                                            <td>Income</td>
-                                            <td>Payment for Order #ORD-7255</td>
-                                            <td class="text-success">+$145.50</td>
-                                            <td><span class="badge badge-success">Completed</span></td>
-                                            <td>
-                                                <div class="action-buttons">
-                                                    <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                                    <button class="btn btn-sm btn-danger delete-transaction-btn"><i class="fas fa-trash"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>#TXN-8951</td>
-                                            <td>Oct 14, 2023</td>
-                                            <td>Income</td>
-                                            <td>Payment for Order #ORD-7254</td>
-                                            <td class="text-success">+$89.99</td>
+                                            <td>2</td>
+                                            <td>$89.99</td>
                                             <td><span class="badge badge-warning">Pending</span></td>
                                             <td>
                                                 <div class="action-buttons">
                                                     <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                                    <button class="btn btn-sm btn-danger delete-transaction-btn"><i class="fas fa-trash"></i></button>
+                                                    <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>#TXN-8950</td>
-                                            <td>Oct 13, 2023</td>
-                                            <td>Expense</td>
-                                            <td>Marketplace Commission</td>
-                                            <td class="text-danger">-$24.60</td>
-                                            <td><span class="badge badge-success">Completed</span></td>
+                                            <td>#ORD-7253</td>
+                                            <td>David Miller</td>
+                                            <td>Oct 14, 2023</td>
+                                            <td>1</td>
+                                            <td>$299.99</td>
+                                            <td><span class="badge badge-success">Delivered</span></td>
                                             <td>
                                                 <div class="action-buttons">
                                                     <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                                    <button class="btn btn-sm btn-danger delete-transaction-btn"><i class="fas fa-trash"></i></button>
+                                                    <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#ORD-7252</td>
+                                            <td>Jennifer Lee</td>
+                                            <td>Oct 13, 2023</td>
+                                            <td>4</td>
+                                            <td>$450.75</td>
+                                            <td><span class="badge badge-danger">Cancelled</span></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                                                    <button class="btn btn-sm btn-warning edit-order-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn btn-sm btn-danger delete-order-btn"><i class="fas fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -180,9 +156,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
     <!-- Add Product Modal -->
     <div class="modal" id="add-product-modal">
         <div class="modal-content">
@@ -340,5 +313,35 @@
     </div>
 
 <script src="js/script.js"></script>
-</body>
-</html>
+<script>
+// Generic modal setup
+function setupModal(triggerSelector, modalSelector, closeSelectors) {
+    const triggers = document.querySelectorAll(triggerSelector);
+    const modal = document.querySelector(modalSelector);
+    if (!modal) return;
+    const closes = modal.querySelectorAll(closeSelectors);
+
+    triggers.forEach(trigger => {
+    trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        modal.style.display = "flex";
+    });
+    });
+    closes.forEach(closeBtn => {
+    closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+    });
+    window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setupModal("#create-order-btn", "#create-order-modal", ".close, #close-order-modal");
+    setupModal(".edit-order-btn", "#edit-product-modal", ".close, #edit-product-modal");
+    setupModal(".delete-order-btn", "#delete-confirm-modal", ".close, #cancel-delete, #confirm-delete");
+    setupModal(".view-order-btn", "#view-order-modal", ".close, #close-view-modal");
+});
+</script>
+@endsection

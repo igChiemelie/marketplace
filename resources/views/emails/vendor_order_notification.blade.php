@@ -1,17 +1,23 @@
 @component('mail::message')
-# New Order Received
+# New Order Notification
 
-Hello {{ $vendor->shop_name }},
+Hello {{ $vendor->name }},
 
-You have a new order with these items:
+You have a new order for your product:
 
-@foreach($orderItems as $item)
-- {{ $item->product->name }} (x{{ $item->quantity }}) — ${{ number_format($item->total,2) }}
-@endforeach
+- **Product ID:** {{ $orderItem->product_id }}
+- **Quantity:** {{ $orderItem->quantity }}
+- **Total:** ₦{{ number_format($orderItem->total, 2) }}
 
-@component('mail::button', ['url'=>route('vendor.dashboard')])
-View Orders
+**Customer Details**
+- Name: {{ $order->fullname }}
+- Email: {{ $order->email }}
+- Phone: {{ $order->phone }}
+
+@component('mail::button', ['url' => url('/vendor/orders/'.$order->id)])
+View Order
 @endcomponent
 
-Thanks,<br>{{ config('app.name') }}
+Thanks,  
+{{ config('app.name') }}
 @endcomponent

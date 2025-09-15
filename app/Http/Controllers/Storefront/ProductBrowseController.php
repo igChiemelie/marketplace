@@ -10,7 +10,7 @@ class ProductBrowseController extends Controller
     public function index()
     {
         $products = Product::where('approval_status','approved')->where('status','active')->paginate(24);
-        return view('storefront.products.index', compact('products'));
+        return view('products', compact('products'));
     }
 
     public function show(Product $product)
@@ -21,8 +21,9 @@ class ProductBrowseController extends Controller
 
     public function vendorShop(VendorProfile $vendor)
     {
+        // dd(123);
         abort_unless($vendor->isApproved(),404);
         $products = $vendor->products()->where('approval_status','approved')->where('status','active')->paginate(24);
-        return view('storefront.vendors.shop', compact('vendor','products'));
+        return view('vendor', compact('vendor','products'));
     }
 }

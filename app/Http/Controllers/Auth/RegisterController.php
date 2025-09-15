@@ -114,7 +114,7 @@ class RegisterController extends Controller
         auth()->guard()->login($user);
 
 
-        // return redirect()->route('customer.dashboard')->with('success','Welcome!');
-        return redirect()->route('customer.dashboard')->with('success', 'Registration successful! Please check your email to verify your account.');
+        return redirect()->route('home')->with('success','Welcome!');
+        // return redirect()->route('customer.dashboard')->with('success', 'Registration successful! Please check your email to verify your account.');
     }
 }

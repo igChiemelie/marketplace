@@ -490,11 +490,11 @@ body.dark-mode .product-title {
 }
 
 .add-to-cart {
+    padding: 10px;
     background-color: var(--primary);
     color: white;
-    padding: 10px 15px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 12px;
     flex-grow: 1;
     display: flex;
     align-items: center;
@@ -788,18 +788,34 @@ body.dark-mode footer {
     position: relative;
 }
 
+/* For small screens */
+/* @media (max-width: 768px) {
+    .cart-dropdown {
+ 
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 250px;
+        background-color:rgb(206, 15, 15);
+        border-radius: 15px;
+    }
+} */
+
 .cart-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
-    width: 320px;
-    background-color: white;
+    width: 250px;
+    background-color:white;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     padding: 20px;
     z-index: 101;
     display: none;
     margin-top: 15px;
+    margin-left: auto; 
+    margin-right: auto; 
+   
 }
 
 body.dark-mode .cart-dropdown {
@@ -1299,4 +1315,76 @@ body.dark-mode .form-group textarea {
 
 .place-order-btn:hover {
     background-color: var(--primary-dark);
+}
+
+
+
+
+
+/* Account Dropdown */
+.account-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.account-dropdown .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    /* right: 0; */
+    width: 220px;
+    background-color: var(--light);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+    margin-top: 12px;
+    z-index: 200;
+    padding: 10px 0;
+}
+/* 
+body.dark-mode .account-dropdown .dropdown-menu {
+    background-color: var(--card-dark);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+} */
+
+.account-dropdown:hover .dropdown-menu {
+    display: flex;
+    animation: fadeIn 0.3s;
+}
+
+.account-dropdown .dropdown-menu a,
+.account-dropdown .dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    color: var(--dark);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+/* 
+body.dark-mode .account-dropdown .dropdown-menu a,
+body.dark-mode .account-dropdown .dropdown-menu button {
+    color: var(--text-dark);
+} */
+
+.account-dropdown .dropdown-menu a:hover,
+.account-dropdown .dropdown-menu button:hover {
+    background-color: var(--gray-light);
+}
+/* 
+body.dark-mode .account-dropdown .dropdown-menu a:hover,
+body.dark-mode .account-dropdown .dropdown-menu button:hover {
+    background-color: #333;
+} */
+
+.account-dropdown .dropdown-menu i {
+    color: var(--primary);
+    font-size: 16px;
 }

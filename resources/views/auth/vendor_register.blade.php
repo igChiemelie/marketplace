@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketHub - Multi-Vendor Login & Register</title>
+    <title>{{ ucfirst(config('app.name'))}} - Multi-Vendor Login & Register</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -403,7 +403,7 @@
         </div>
         
         <div class="left-panel">
-            <h2>New to MarketHub?</h2>
+            <h2>New to {{ ucfirst(config('app.name'))}}?</h2>
             <p>Join our community and enjoy a seamless shopping experience with exclusive deals, personalized recommendations, and faster checkout.</p>
             <button id="switch-to-register">Sign Up</button>
         </div>
@@ -411,7 +411,8 @@
         <div class="right-panel">
             <div class="form-container">
                 <div class="logo">
-                    <h1><i class="fas fa-store"></i> Market<span>Hub</span></h1>
+                    <h1><i class="fas fa-store"></i> {{ substr (config('app.name'),0, 5) }}<span>{{ substr (config('app.name'),5, 9) }}</span></h1>
+
                 </div>
                 
                

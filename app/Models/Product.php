@@ -10,6 +10,8 @@ class Product extends Model
     {
         return $this->belongsTo(VendorProfile::class, 'vendor_id');
     }
+
+    
     public function images()
     {
         return $this->hasMany(ProductImage::class);

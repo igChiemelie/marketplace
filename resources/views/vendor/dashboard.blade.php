@@ -5,7 +5,7 @@
 <a href="{{ route('vendor.products.index') }}" class="btn btn-sm btn-primary">My Products</a>
 @endsection
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
 @if (session('success'))
     <script>
         // document.addEventListener("DOMContentLoaded", function () {
